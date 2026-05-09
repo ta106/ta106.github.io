@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-itunes-app" content="app-id=PLACEHOLDER_APPLE_APP_ID" />
+<title>Sufra — افتح في التطبيق</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tajawal, sans-serif;
+    background: #FAF7F2;
+    color: #2A2420;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(42,36,32,0.08);
+  }
+  h1 { font-size: 22px; margin: 8px 0 4px; }
+  p { font-size: 15px; color: #7C7570; margin: 0 0 24px; line-height: 1.5; }
+  .emoji { font-size: 48px; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 9999px;
+    background: #C46538;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .btn.secondary {
+    background: #F2EDE5;
+    color: #2A2420;
+  }
+  small { color: #B5AEA9; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">🍽️</div>
+    <h1>افتح في تطبيق سفرة</h1>
+    <p id="copy">تمت مشاركة وصفة أو خطة معكِ. افتحي الرابط في تطبيق سفرة.</p>
+    <a id="appBtn" class="btn" href="#">افتح التطبيق</a>
+    <a id="storeBtn" class="btn secondary" href="#">تنزيل سفرة</a>
+    <small id="hint">إذا لم يفتح التطبيق تلقائياً، اضغطي على "افتح التطبيق" أعلاه.</small>
+  </div>
+
+<script>
+(function () {
+  // Path is /s/{id}.
+  var parts = location.pathname.split('/').filter(Boolean);
+  var id = parts[parts.length - 1];
+  if (!id || id === 'index.html' || id === 's') {
+    document.getElementById('copy').textContent = 'لا يوجد رابط مشاركة في عنوان URL.';
+    return;
+  }
+
+  var schemeUrl = 'sufra://share/' + id;
+  document.getElementById('appBtn').href = schemeUrl;
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+
+  // App Store / Play Store URLs are placeholders until apps are published.
+  // TODO: replace these once the apps are live.
+  var iosStore = 'https://apps.apple.com/app/idPLACEHOLDER';
+  var androidStore = 'https://play.google.com/store/apps/details?id=com.sufra.app';
+
+  var storeBtn = document.getElementById('storeBtn');
+  if (isIOS) {
+    storeBtn.href = iosStore;
+  } else if (isAndroid) {
+    storeBtn.href = androidStore;
+  } else {
+    storeBtn.style.display = 'none';
+    document.getElementById('hint').textContent = 'افتحي هذا الرابط على هاتفكِ لتشغيل تطبيق سفرة.';
+  }
+
+  // Try the custom scheme for users who already have the app but didn't get
+  // a Universal Link match (e.g. tapped from a context that strips them).
+  if (isIOS || isAndroid) {
+    setTimeout(function () { window.location.href = schemeUrl; }, 50);
+  }
+})();
+</script>
+</body>
+</html>
