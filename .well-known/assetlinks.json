@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.sufra.app",
+      "package_name": "com.sufra",
       "sha256_cert_fingerprints": [
         "EE:03:15:CD:5E:22:A3:4F:BF:39:3F:BF:F5:8C:E5:C2:38:2E:CA:EE:09:B0:72:3B:A5:DF:38:2E:CB:24:B4:5B"
       ]
