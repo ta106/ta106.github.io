@@ -7,6 +7,12 @@
         "paths": [
           "/s/*"
         ]
+      },
+      {
+        "appID": "8Y5U2672GW.app.ayar",
+        "paths": [
+          "/a/*"
+        ]
       }
     ]
   }
