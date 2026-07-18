@@ -124,25 +124,17 @@ permalink: /404.html
   }
   storeBtn.href = store;
 
-  // Auto-flow on a phone:
-  //  • App installed  → the scheme opens it on the recipe; the page goes to
-  //    the background, so we cancel the store fallback.
-  //  • Not installed  → the scheme does nothing; after a short wait we send
-  //    the user straight to the store to download the app.
-  // The buttons above remain a manual fallback either way.
-  var storeTimer = setTimeout(function () {
-    if (!document.hidden) window.location.href = store;
-  }, 1500);
-
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) clearTimeout(storeTimer);
-  });
-  window.addEventListener('pagehide', function () {
-    clearTimeout(storeTimer);
-  });
-
-  // Attempt to open the app.
-  window.location.href = schemeUrl;
+  // We only reach this page when the app did NOT open itself via Universal
+  // Links — so the app is almost certainly not installed. Go straight to the
+  // store, no questions asked.
+  //
+  // We deliberately do NOT auto-launch the app's custom scheme (sufra:// /
+  // ayar://). On a device without the app that pops an intrusive "open this
+  // in another app?" prompt right before the store — exactly the friction we
+  // want to avoid. Anyone who *does* have the app but somehow landed here
+  // (e.g. an in-app browser that strips Universal Links) can still tap
+  // "افتح التطبيق" above to launch it manually.
+  window.location.replace(store);
 })();
 </script>
 </body>
