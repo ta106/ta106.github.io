@@ -1,0 +1,149 @@
+---
+permalink: /404.html
+---
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>افتح في التطبيق</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tajawal, sans-serif;
+    background: #FAF7F2;
+    color: #2A2420;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(42,36,32,0.08);
+  }
+  h1 { font-size: 22px; margin: 8px 0 4px; }
+  p { font-size: 15px; color: #7C7570; margin: 0 0 24px; line-height: 1.5; }
+  .emoji { font-size: 48px; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 9999px;
+    background: #C46538;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .btn.secondary {
+    background: #F2EDE5;
+    color: #2A2420;
+  }
+  small { color: #B5AEA9; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">🍽️</div>
+    <h1 id="title">افتح في التطبيق</h1>
+    <p id="copy">تمت مشاركة وصفة معك.</p>
+    <a id="appBtn" class="btn" href="#">افتح التطبيق</a>
+    <a id="storeBtn" class="btn secondary" href="#">تنزيل التطبيق</a>
+    <small id="hint">إذا لم يفتح التطبيق تلقائياً، اضغط على "افتح التطبيق" أعلاه.</small>
+  </div>
+
+<script>
+(function () {
+  // One handler for every share link. GitHub Pages serves this file for any
+  // path that has no matching file — including the real share URLs
+  // /s/{id} (سفرة/Milkshake) and /a/{id} (عيار) — while keeping the original
+  // URL, so we route on the first path segment.
+  var APPS = {
+    s: {
+      name: 'سفرة',
+      scheme: 'sufra://share/',
+      iosStore: 'https://apps.apple.com/app/id6772585364',
+      androidStore: 'https://play.google.com/store/apps/details?id=com.sufra.app'
+    },
+    a: {
+      name: 'عيار',
+      scheme: 'ayar://share/',
+      iosStore: 'https://apps.apple.com/app/id6790863136',
+      androidStore: null
+    }
+  };
+
+  var parts = location.pathname.split('/').filter(Boolean); // e.g. ['s','abc123']
+  var app = APPS[parts[0]];
+  var id = parts.length >= 2 ? parts[parts.length - 1] : null;
+
+  var titleEl = document.getElementById('title');
+  var copyEl = document.getElementById('copy');
+  var appBtn = document.getElementById('appBtn');
+  var storeBtn = document.getElementById('storeBtn');
+  var hintEl = document.getElementById('hint');
+
+  if (!app || !id) {
+    // Not a recognizable share link — show a plain not-found message.
+    document.title = 'الصفحة غير موجودة';
+    titleEl.textContent = 'الصفحة غير موجودة';
+    copyEl.textContent = 'هذا الرابط غير صحيح أو منتهي الصلاحية.';
+    appBtn.style.display = 'none';
+    storeBtn.style.display = 'none';
+    hintEl.style.display = 'none';
+    return;
+  }
+
+  document.title = app.name + ' — افتح في التطبيق';
+  titleEl.textContent = 'افتح في تطبيق ' + app.name;
+  copyEl.textContent = 'تمت مشاركة وصفة معك. افتح الرابط في تطبيق ' + app.name + '.';
+  storeBtn.textContent = 'تنزيل ' + app.name;
+
+  var schemeUrl = app.scheme + id;
+  appBtn.href = schemeUrl;
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+  var store = isIOS ? app.iosStore : isAndroid ? app.androidStore : null;
+
+  if (!store) {
+    // Desktop / other (or an app with no store link for this platform yet).
+    storeBtn.style.display = 'none';
+    appBtn.style.display = 'none';
+    hintEl.textContent = 'افتح هذا الرابط على هاتفك لتشغيل تطبيق ' + app.name + '.';
+    return;
+  }
+  storeBtn.href = store;
+
+  // Auto-flow on a phone:
+  //  • App installed  → the scheme opens it on the recipe; the page goes to
+  //    the background, so we cancel the store fallback.
+  //  • Not installed  → the scheme does nothing; after a short wait we send
+  //    the user straight to the store to download the app.
+  // The buttons above remain a manual fallback either way.
+  var storeTimer = setTimeout(function () {
+    if (!document.hidden) window.location.href = store;
+  }, 1500);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(storeTimer);
+  });
+  window.addEventListener('pagehide', function () {
+    clearTimeout(storeTimer);
+  });
+
+  // Attempt to open the app.
+  window.location.href = schemeUrl;
+})();
+</script>
+</body>
+</html>
