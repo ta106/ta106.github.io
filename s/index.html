@@ -80,21 +80,38 @@
   var iosStore = 'https://apps.apple.com/app/id6772585364';
   var androidStore = 'https://play.google.com/store/apps/details?id=com.sufra.app';
 
+  var store = isIOS ? iosStore : isAndroid ? androidStore : null;
   var storeBtn = document.getElementById('storeBtn');
-  if (isIOS) {
-    storeBtn.href = iosStore;
-  } else if (isAndroid) {
-    storeBtn.href = androidStore;
-  } else {
+
+  if (!store) {
+    // Desktop / other — can't open a mobile app here.
     storeBtn.style.display = 'none';
+    document.getElementById('appBtn').style.display = 'none';
     document.getElementById('hint').textContent = 'افتح هذا الرابط على هاتفكِ لتشغيل تطبيق سفرة.';
+    return;
   }
 
-  // Try the custom scheme for users who already have the app but didn't get
-  // a Universal Link match (e.g. tapped from a context that strips them).
-  if (isIOS || isAndroid) {
-    setTimeout(function () { window.location.href = schemeUrl; }, 50);
-  }
+  storeBtn.href = store;
+
+  // Auto-flow on a phone:
+  //  • App installed  → the sufra:// scheme opens it on the recipe; the page
+  //    goes to the background, so we cancel the store fallback.
+  //  • Not installed  → the scheme does nothing; after a short wait we send
+  //    the user straight to the store to download the app.
+  // The buttons above remain as a manual fallback either way.
+  var storeTimer = setTimeout(function () {
+    if (!document.hidden) window.location.href = store;
+  }, 1500);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(storeTimer);
+  });
+  window.addEventListener('pagehide', function () {
+    clearTimeout(storeTimer);
+  });
+
+  // Attempt to open the app.
+  window.location.href = schemeUrl;
 })();
 </script>
 </body>

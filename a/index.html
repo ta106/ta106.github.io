@@ -77,20 +77,37 @@
   var iosStore = 'https://apps.apple.com/app/id6790863136';
 
   var storeBtn = document.getElementById('storeBtn');
-  if (isIOS) {
-    storeBtn.href = iosStore;
-  } else {
-    // iOS-only for now — no Play Store listing yet. Hide the download button
-    // and tell non-iOS visitors to open the link on an iPhone.
+
+  if (!isIOS) {
+    // iOS-only for now — no Play Store listing yet. Hide the app buttons and
+    // tell non-iOS visitors to open the link on an iPhone.
     storeBtn.style.display = 'none';
+    document.getElementById('appBtn').style.display = 'none';
     document.getElementById('hint').textContent = 'افتح هذا الرابط على جهاز آيفون لتشغيل تطبيق عيار.';
+    return;
   }
 
-  // Try the custom scheme for users who already have the app but didn't get
-  // a Universal Link match (e.g. tapped from a context that strips them).
-  if (isIOS) {
-    setTimeout(function () { window.location.href = schemeUrl; }, 50);
-  }
+  storeBtn.href = iosStore;
+
+  // Auto-flow on iOS:
+  //  • App installed  → the ayar:// scheme opens it on the recipe; the page
+  //    goes to the background, so we cancel the App Store fallback.
+  //  • Not installed  → the scheme does nothing; after a short wait we send
+  //    the user straight to the App Store to download عيار.
+  // The buttons above remain as a manual fallback either way.
+  var storeTimer = setTimeout(function () {
+    if (!document.hidden) window.location.href = iosStore;
+  }, 1500);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(storeTimer);
+  });
+  window.addEventListener('pagehide', function () {
+    clearTimeout(storeTimer);
+  });
+
+  // Attempt to open the app.
+  window.location.href = schemeUrl;
 })();
 </script>
 </body>
